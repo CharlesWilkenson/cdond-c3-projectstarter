@@ -194,6 +194,17 @@ jobs:
             echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
             cat backend/.env
+      - run:
+          name: Configure server
+          working_directory: ./.circleci/ansible
+          command: |
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml -vvv
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend
+            
       # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
