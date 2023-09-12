@@ -156,7 +156,7 @@ jobs:
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
                --output text)
             echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
-            curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl -d $(echo $BACKEND_PUBLIC_IP)
+            curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl -d '1'
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
