@@ -364,9 +364,9 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
         # Install AWS CLI
-      - run:
-          name: Install AWS CLI
-          command: pip install awscli
+   #   - run:
+   #       name: Install AWS CLI
+    #      command: pip install awscli
       - run:
           name: Get backend URL
           command: |
