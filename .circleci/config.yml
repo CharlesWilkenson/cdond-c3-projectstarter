@@ -355,12 +355,13 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-     # - install_awscli
+      - install_awscli
       - run:
           name: Install dependencies
           command: |
               cd frontend
               npm install
+              pip install awscli
       - restore_cache:
           keys: [frontend-build]
         # Install AWS CLI
