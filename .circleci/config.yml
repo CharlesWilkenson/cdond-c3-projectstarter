@@ -414,10 +414,10 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apk add --update curl
       - run:
           name: Get backend url
           command: |
