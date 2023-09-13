@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.12.5
 
-# commands:
+commands:
 #   destroy-environment:
 #     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
 #     parameters:
@@ -33,6 +33,16 @@ orbs:
 #             #  Add revert code here. You can find this in the Getting Started section.
 #               exit 1
 #             fi
+
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install         
             
 jobs:
   build-frontend:
@@ -355,7 +365,7 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      #- install_awscli
+      - install_awscli
       - run:
           name: Install dependencies
           command: |
@@ -364,10 +374,6 @@ jobs:
               pip install awscli
       - restore_cache:
           keys: [frontend-build]
-        # Install AWS CLI
-   #   - run:
-   #       name: Install AWS CLI
-    #      command: pip install awscli
       - run:
           name: Get backend URL
           command: |
