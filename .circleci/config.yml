@@ -371,7 +371,6 @@ jobs:
           command: |
               cd frontend
               npm install
-              pip install awscli
       - restore_cache:
           keys: [frontend-build]
       - run:
