@@ -421,15 +421,13 @@ jobs:
           command: |
             export API_URL=$(curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl)
             echo $API_URL
-      - run:
-          name: Backend smoke test.
-          command: |
-                if curl "${API_URL}/api/status" | grep "ok"
-                then
-                  return 0
-                else
-                  return 1
-                fi
+
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              return 0
+            else
+              return 1
+            fi
       - run:
           name: Frontend smoke test.
           command: |
