@@ -320,9 +320,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Run migrations
-          #wait_for_connection:
-             #timeout: 1200    
+          name: Run migrations 
           command: |
             cd backend
             echo "Running migrations"
@@ -414,10 +412,6 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       apk add --update curl
       - run:
           name: Get backend url
           command: |
