@@ -54,6 +54,16 @@ commands:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install         
+
+  install_nodejs:
+       description: Install Nodejs
+       steps:
+         - run:
+             name: Install Nodejs
+             command: |            
+              sudo apt install -y tar gzip curl
+              curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+              sudo apt-get install -y nodejs           
             
 jobs:
   build-frontend:
@@ -69,9 +79,6 @@ jobs:
             cd frontend
             npm install
             npm run build
-            sudo apt install -y tar gzip curl
-            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-            sudo apt-get install -y nodejs
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -81,6 +88,7 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
+      - install_nodejs
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -89,9 +97,6 @@ jobs:
             cd backend
             npm install
             npm run build
-            sudo apt install -y tar gzip curl
-            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-            sudo apt-get install -y nodejs
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -203,18 +208,19 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - install_awscli
       - add_ssh_keys:
           fingerprints:
           - "f3:c7:15:64:52:d4:be:8b:4a:0f:82:8d:58:03:9a:ad"
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            # install the dependencies needed for your playbook
-            apk add --update tar gzip
-            pip install awscli
-            apk add --update ansible
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       # install the dependencies needed for your playbook
+      #       apk add --update tar gzip
+      #       pip install awscli
+      #       apk add --update ansible
       - run:
           name: Configure server
           command: |
