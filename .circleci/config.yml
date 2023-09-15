@@ -226,8 +226,8 @@ jobs:
           name: Configure server
           working_directory: ./.circleci/ansible
           command: |
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yml -vvv
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
       - persist_to_workspace:
           root: ~/
           paths:
