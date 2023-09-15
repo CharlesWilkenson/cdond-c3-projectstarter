@@ -63,7 +63,9 @@ commands:
              command: |            
               sudo apt install -y tar gzip curl
               curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-              sudo apt-get install -y nodejs           
+              sudo apt-get install -y nodejs    
+              sudo npm install --global n
+              sudo n 13.8.0       
             
 jobs:
   build-frontend:
@@ -195,7 +197,7 @@ jobs:
                --filters "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
                --output text)
-            echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
+               --output text >> ~/project/.circleci/ansible/inventory.txt
             curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl -d '1'
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
@@ -205,9 +207,10 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_awscli
       - add_ssh_keys:
           fingerprints:
           - "f3:c7:15:64:52:d4:be:8b:4a:0f:82:8d:58:03:9a:ad"
@@ -216,24 +219,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # install the dependencies needed for your playbook
             apk add --update tar gzip
-            # pip install awscli
-            apk add --update ansible
-      - run:
-          name: Configure server
-          command: |
-            echo ENVIRONMENT=production > backend/.env
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            cat backend/.env
+            sudo apt-get update
+            sudo apt-get install -y ansible            
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -297,6 +285,7 @@ jobs:
           name: Run migrations 
           command: |
             cd backend
+            npm install
             echo "Running migrations"
             npm run migrations > migrations_dump.txt  
       - run:
@@ -313,6 +302,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      -  install_nodejs
       - run:
           name: Install dependencies
           command: |
@@ -352,6 +342,7 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       -  checkout
+      -  install_nodejs
       - add_ssh_keys:
           fingerprints:
           - "f3:c7:15:64:52:d4:be:8b:4a:0f:82:8d:58:03:9a:ad"
@@ -420,10 +411,10 @@ jobs:
             else
               return 1
             fi
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 
 workflows:
