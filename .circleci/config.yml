@@ -370,7 +370,7 @@ jobs:
             apk add --update ansible curl rsync openssh nodejs npm tree
             ansible --version
       - run:
-          name: Deploy backend
+          name: Deploy backend.
           command: |
             cd backend
             npm i
