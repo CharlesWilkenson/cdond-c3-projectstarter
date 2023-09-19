@@ -354,11 +354,12 @@ jobs:
     docker: 
       - image: python:3.7-alpine3.11
     steps:
-      -  checkout
-      -  install_nodejs
+      - checkout
+      - install_nodejs
+      - install_awscli
+      - install_ansible
       - add_ssh_keys:
-          fingerprints:
-          - "f3:c7:15:64:52:d4:be:8b:4a:0f:82:8d:58:03:9a:ad"
+          fingerprints: [c3:8a:77:8c:54:e8:d1:57:52:fb:9a:55:fd:96:d0:50]
       - attach_workspace:
           at: ./
       - restore_cache:
@@ -373,9 +374,11 @@ jobs:
           command: |
             cd backend
             npm i
-            npm install
             npm run build
             cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml -vvv
       - destroy-environment:
