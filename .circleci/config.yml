@@ -62,7 +62,7 @@ commands:
              name: Install Nodejs
              command: |            
               sudo apt install -y tar gzip curl
-              # curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+              curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
               sudo apt-get install -y nodejs    
               sudo npm install --global n
               sudo n 13.8.0   
@@ -101,7 +101,7 @@ jobs:
 
   build-backend:
     docker:
-    - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - install_nodejs
@@ -233,7 +233,7 @@ jobs:
       - attach_workspace:
           at: ./workspace          
       - run:
-          name: Configure serverudapeople-905ff8a
+          name: Configure server
           working_directory: ./.circleci/ansible
           command: |
             aws ec2 describe-instances \
