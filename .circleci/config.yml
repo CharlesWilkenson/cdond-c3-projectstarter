@@ -398,13 +398,14 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      - install_nodejs
       - restore_cache:
           keys: [backend-build]
       - run:
           name: Get backend url
           command: |
-            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-            sudo apt-get install -y nodejs
+            # curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+            # sudo apt-get install -y nodejs
             export BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
                --filters "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
