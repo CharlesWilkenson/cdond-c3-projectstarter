@@ -61,11 +61,11 @@ commands:
          - run:
              name: Install Nodejs
              command: |            
-              sudo apt install -y tar gzip curl
-              curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-              sudo apt-get install -y nodejs    
-              sudo npm install --global n
-              sudo n 13.8.0    
+              # sudo apt install -y tar gzip curl
+              # curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+              # sudo apt-get install -y nodejs    
+              # sudo npm install --global n
+              # sudo n 13.8.0    
 
   install_ansible:
     description: Install Ansible
@@ -361,7 +361,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt install -y tar gzip curl
+            apt install -y tar gzip curl
             apk add --update ansible curl rsync openssh nodejs npm tree
             ansible --version
       - run:
