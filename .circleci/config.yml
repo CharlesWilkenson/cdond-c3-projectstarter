@@ -65,7 +65,9 @@ commands:
               # curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
               # sudo apt-get install -y nodejs    
               # sudo npm install --global n
-              # sudo n 13.8.0    
+              # sudo n 13.8.0   
+              
+               
 
   install_ansible:
     description: Install Ansible
@@ -178,9 +180,11 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+       - image: circleci/python:3.10
+      #- image: amazon/aws-cli
     steps:
       - checkout
+      - install_awscli
       - run:
           name: Install Dependencies
           command: yum install -y tar gzip
@@ -232,6 +236,10 @@ jobs:
           name: Configure server.
           working_directory: ./.circleci/ansible
           command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --output text >> ~/project/.circleci/ansible/inventory.txt
             cat ~/project/.circleci/ansible/inventory.txt
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-server.yml
           no_output_timeout: 30m
@@ -286,6 +294,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      - install_nodejs
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -349,9 +358,9 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      # - install_nodejs
-      # - install_awscli
-      # - install_ansible
+      - install_nodejs
+      - install_awscli
+      - install_ansible
       - add_ssh_keys:
           fingerprints: [c3:8a:77:8c:54:e8:d1:57:52:fb:9a:55:fd:96:d0:50]
       - attach_workspace:
@@ -361,9 +370,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt install -y tar gzip curl
-            apk add --update ansible curl rsync openssh nodejs npm tree
-            ansible --version
+            cd backend
+            # apt install -y tar gzip curl
+            # apk add --update ansible curl rsync openssh nodejs npm tree
+            # ansible --version
       - run:
           name: Deploy backend.
           command: |
