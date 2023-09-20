@@ -233,7 +233,7 @@ jobs:
       - attach_workspace:
           at: ./workspace          
       - run:
-          name: Configure server.
+          name: Configure server
           working_directory: ./.circleci/ansible
           command: |
             aws ec2 describe-instances \
