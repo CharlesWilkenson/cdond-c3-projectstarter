@@ -318,44 +318,6 @@ jobs:
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
      
-  # deploy-backend:
-  #   docker: 
-  #     - image: python:3.7-alpine3.11
-  #   steps:
-  #     - add_ssh_keys:
-  #         fingerprints: [72:76:16:eb:5f:5a:58:2b:e4:aa:31:fd:34:60:04:59]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - restore_cache:
-  #         keys: [backend-build]
-  #     - run:
-  #         name: Install dependencies
-  #         working_directory: ./
-  #         command: |
-  #           cd backend
-  #           apk add --update ansible curl rsync openssh nodejs npm tree
-  #           ansible --version   
-  #     - run:
-  #         name: Package backend.
-  #         command: |
-  #           cd backend
-  #           npm install
-  #           npm run build
-  #           cd ..
-  #           tar -C backend -czvf artifact.tar.gz .
-  #           echo "Contents  of the inventory.txt file is -------"
-  #           mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-  #           mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz 
-  #     - run:
-  #         name: Deploy backend.
-  #         command: |
-  #           cd .circleci/ansible
-  #           cat inventory.txt
-  #           ansible-playbook -i inventory.txt deploy-backend.yml
-  #     - destroy-environment:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-  #     - revert-migrations:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -375,22 +337,16 @@ jobs:
             apk add --update ansible curl rsync openssh nodejs npm tree
             ansible --version
       - run:
-          name: Package Backend
-          working_directory: ./
+          name: Deploy backend
           command: |
             cd backend
             npm install
             npm run build
-
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
             mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
 
-      - run:
-          name: Deploy backend
-          working_directory: ./
-          command: |
             echo .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 
