@@ -158,9 +158,6 @@ jobs:
             npm install
             npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
 
   scan-backend:
     docker:
@@ -214,7 +211,7 @@ jobs:
                --output text)
             echo $BACKEND_PUBLIC_IP >> ~/project/.circleci/ansible/inventory.txt
             curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl -d '1'
-            cat .circleci/ansible/inventory.txt
+            cat ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -250,48 +247,19 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}           
-      # Here's where you will add some code to rollback on failure .     
-                   
-
-#   cloudfront-update:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Update cloudfront distribution
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
-
-# cleanup:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Get old stack workflow id
-#           command: |
-#             # your code here
-#             export OldWorkflowID="the id here"
-#             export STACKS=[] #put the list of stacks here
-#       - run:
-#           name: Remove old stacks and files
-#           command: |
-#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#             then
-#               # your code here
-#             fi
   
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -397,7 +365,7 @@ jobs:
           fingerprints:
           - "72:76:16:eb:5f:5a:58:2b:e4:aa:31:fd:34:60:04:59"
       - attach_workspace:
-          at: ./
+          at: ~/
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -407,17 +375,27 @@ jobs:
             apk add --update ansible curl rsync openssh nodejs npm tree
             ansible --version
       - run:
+          name: Package Backend
+          working_directory: ./
+          command: |
+            cd backend
+            npm install
+            npm run build
+
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+
+      - run:
           name: Deploy backend
           working_directory: ./
           command: |
             echo .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-            cd backend
-            npm install
-            npm run build
-            cd ..
+
             export ANSIBLE_HOST_KEY_CHECKING=False
-            ansible-playbook -i .circleci/ansible/inventory.ini .circleci/ansible/deploy-backend.yml -vvv
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml -vvv
 
   smoke-test:
     docker:
@@ -500,3 +478,40 @@ workflows:
       #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
+
+
+
+
+#   cloudfront-update:
+#     docker:
+#       # Docker image here that supports AWS CLI
+#     steps:
+#       # Checkout code from git
+#       - run:
+#           name: Install dependencies
+#           command: |
+#             # your code here
+#       - run:
+#           name: Update cloudfront distribution
+#           command: |
+#             # your code here
+#       # Here's where you will add some code to rollback on failure  
+
+# cleanup:
+#     docker:
+#       # Docker image here
+#     steps:
+#       # Checkout code from git
+#       - run:
+#           name: Get old stack workflow id
+#           command: |
+#             # your code here
+#             export OldWorkflowID="the id here"
+#             export STACKS=[] #put the list of stacks here
+#       - run:
+#           name: Remove old stacks and files
+#           command: |
+#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+#             then
+#               # your code here
+#             fi
