@@ -362,21 +362,21 @@ jobs:
           keys: [backend-build]
       - run:
           name: Install dependencies
-          working_directory: ~/
+          working_directory: ./
           command: |
-            cd backend
-            npm i
-            npm run build 
             apk add --update ansible curl rsync openssh nodejs npm tree
             ansible --version   
       - run:
           name: Deploy backend.
           command: |
-            cd ..
             tar -C backend -czvf artifact.tar.gz .
             echo "Contents  of the inventory.txt file is -------"
             cat .circleci/ansible/inventory.txt
-            export ANSIBLE_HOST_KEY_CHECKING=False
+
+            cd backend
+            npm install
+            npm run build
+            cd ..
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml -vvv
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
