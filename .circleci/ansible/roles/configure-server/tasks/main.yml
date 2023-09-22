@@ -3,6 +3,7 @@
   become: true
   apt:
     update_cache: yes
+    cache_valid_time: 86400
 
 - name: "upgrade packages"
   become: true
@@ -21,22 +22,12 @@
     state: latest
     update_cache: yes
 
-- name: "install nodejs 13.8.0"
-  become: true
-  shell: n 13.8.0
-
-- name: "install n"
-  become: true
-  npm:
-    name: n
-    global: yes
-    production: yes
-    
 - name: "install pm2"
   become: true
   npm:
     name: pm2
     global: yes
     production: yes
-    state: present
+    state: latest
+
 
