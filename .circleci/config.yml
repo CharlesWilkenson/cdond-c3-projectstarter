@@ -45,10 +45,10 @@ commands:
             fi
 
   install_awscli:
-    description: Install AWS CLI v2
+    description: Install AWS CLI version2
     steps:
       - run:
-          name: Install AWS CLI v2
+          name: Install AWS CLI version2
           command: |
             sudo apt install -y tar gzip curl
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -209,8 +209,8 @@ jobs:
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
                --output text)
             echo $BACKEND_PUBLIC_IP >> ~/project/.circleci/ansible/inventory.txt
-            curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl -d '1'
-            cat ~/project/.circleci/ansible/inventory.txt
+            curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/backendurl -d $(echo $BACKEND_PUBLIC_IP)
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -228,10 +228,24 @@ jobs:
       - attach_workspace:
           at: ~/  
       - run:
+          name: Configure variable
+          command: |
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            cat backend/.env          
+      - run:
           name: Install dependencies
           command: |
             apk add --update tar gzip ansible
-            # pip install awscli      
+            pip install awscli      
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -279,11 +293,13 @@ jobs:
      - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
+      # - install_awscli
       - run:
           name: Install dependencies
           command: |
               cd frontend
+              pip install awscli
+              aws --version
               npm install
       - restore_cache:
           keys: [frontend-build]
@@ -300,10 +316,10 @@ jobs:
             echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> .env
             echo "NODE_ENV=production" >> .env
             cat .env
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/frontend/.env            
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - project/frontend/.env            
       - run:
           name: Deploy frontend objects
           command: |
@@ -327,7 +343,7 @@ jobs:
           fingerprints:
           - "72:76:16:eb:5f:5a:58:2b:e4:aa:31:fd:34:60:04:59"
       - attach_workspace:
-          at: ~/
+          at: ./
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -364,7 +380,7 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo "=== .env ===="
+            echo  .env
             cat backend/.env
             tar -C backend -czvf artifact.tar.gz .
             cd ./.circleci/ansible
