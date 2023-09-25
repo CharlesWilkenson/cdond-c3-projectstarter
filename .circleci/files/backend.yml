@@ -33,5 +33,5 @@ Resources:
       # Ubuntu 18 or higher works fine
       ImageId: ami-0c65adc9a5c1b5d7c 
       Tags:
-        - Key: wilkiUdapeopleKey
+        - Key: Name
           Value: !Sub backend-${ID}
