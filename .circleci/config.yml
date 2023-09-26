@@ -342,7 +342,7 @@ jobs:
           fingerprints: 
           - "72:76:16:eb:5f:5a:58:2b:e4:aa:31:fd:34:60:04:59"
       - attach_workspace:
-          at: ./
+          at: ~/
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -382,7 +382,7 @@ jobs:
             echo  .env
             cat backend/.env
             tar -C backend -czvf artifact.tar.gz .
-            cd ./.circleci/ansible
+            cd .circleci/ansible
             echo "Contents of the inventory.txt file is ----"
             export ANSIBLE_HOST_KEY_CHECKING=False
             cat inventory.txt
