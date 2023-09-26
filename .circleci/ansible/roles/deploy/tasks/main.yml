@@ -1,44 +1,55 @@
 ---
+- name: install rsync on the ansible controller
+  become: true
+  connection: local
+  package:
+    name:
+      - openssh
+      - rsync
+    state: present
 
-- name: 'update and upgrade packages.'
+- name: "move files to server"
   become: true
-  apt:
-    upgrade: yes
-    update_cache: yes
-    cache_valid_time: 86400
-
-- name: remove unneeded deps
-  become: true
-  apt:
-    autoremove: yes
-
-- name: install deps
-  become: true
-  apt:
-    name: ['nodejs', 'npm']
-    state: latest
-    update_cache: yes
-    
-- name: install pm2
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    state: latest
-    production: yes
-
-- name: Create directory
-  become: true
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-
-- name: Copy compressed backend folder
-  become: true
-  unarchive:
+  synchronize:
     src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend
-    owner: ubuntu
+    recursive: true
+
+- name: "move node modules"
+  become: true
+  synchronize:
+    src: ~/project/artifact.tar.gz
+    dest: /home/ubuntu/backend/node_modules
+    recursive: true
+
+- name: "run server"
+  become: true
+  command: pm2 start -f ./main.js
+  args:
+    chdir: ./udapeople/dist
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+# - name: Create directory
+#   become: true
+#   file:
+#     path: /home/ubuntu/backend
+#     state: directory
+
+# - name: Copy compressed backend folder
+#   become: true
+#   unarchive:
+#     src: ~/project/artifact.tar.gz
+#     dest: /home/ubuntu/backend
+#     owner: ubuntu
 
 # - name: Run the web server
 #   become: true
@@ -49,11 +60,11 @@
 #       pm2 stop default
 #       pm2 delete default
 #       pm2 start npm -- start
-- name: start app
-  become: true
-  shell: |
-    cd /home/ubuntu/backend
-    ls
-    pm2 delete all
-    pm2 start npm -- start
+# - name: start app
+#   become: true
+#   shell: |
+#     cd /home/ubuntu/backend
+#     ls
+#     pm2 delete all
+#     pm2 start npm -- start
       
