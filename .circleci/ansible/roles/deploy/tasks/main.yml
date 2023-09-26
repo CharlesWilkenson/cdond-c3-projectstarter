@@ -1,12 +1,12 @@
 ---
-  - name: install rsync on the ansible controller
-    become: true
-    connection: local
-    package:
-      name:
-        - openssh
-        - rsync
-      state: present
+  # - name: install rsync on the ansible controller
+  #   become: true
+  #   connection: local
+  #   package:
+  #     name:
+  #       - openssh
+  #       - rsync
+  #     state: present
 
   - name: "move files to server"
     become: true
