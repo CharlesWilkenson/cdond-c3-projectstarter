@@ -24,7 +24,8 @@
 - name: start app
   become: true
   shell: |
-    cd backend
+    cd /home/ubuntu/backend
+    ls
     pm2 delete all
     pm2 start npm -- start
       
