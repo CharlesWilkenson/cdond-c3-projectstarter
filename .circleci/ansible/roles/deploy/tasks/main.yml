@@ -56,7 +56,7 @@
 - name: Copy compressed backend folder
   become: true
   unarchive:
-    src: ~/project/artifact.tar.gz
+    src: /home/root/project/artifact.tar.gz
     dest: /home/ubuntu/backend
     remote_src: yes  # This is important if the source is on the remote machine
     owner: ubuntu
