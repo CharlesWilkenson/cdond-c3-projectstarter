@@ -53,16 +53,21 @@
 
  
 
+# - name: Copy compressed backend folder
+#   become: true
+#   unarchive:
+#     src: /home/root/project/artifact.tar.gz
+#     dest: /home/ubuntu/backend
+#    # remote_src: yes  # This is important if the source is on the remote machine
+#     owner: ubuntu
+#     group: ubuntu  # It's a good practice to also set the group
+
 - name: Copy compressed backend folder
   become: true
   unarchive:
-    src: /home/root/project/artifact.tar.gz
+    src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend
-    remote_src: yes  # This is important if the source is on the remote machine
     owner: ubuntu
-    group: ubuntu  # It's a good practice to also set the group
-
- 
 
 - name: Run the web server
   become: true
