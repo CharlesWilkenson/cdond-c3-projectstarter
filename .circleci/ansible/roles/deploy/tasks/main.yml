@@ -46,7 +46,7 @@
 
 ---
 - name: Create directory
-  become: yes
+  become: true
   file:
     path: /home/ubuntu/backend
     state: directory
@@ -54,7 +54,7 @@
  
 
 - name: Copy compressed backend folder
-  become: yes
+  become: true
   unarchive:
     src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend
@@ -65,15 +65,15 @@
  
 
 - name: Run the web server
-  become: yes
+  become: true
   shell: |
     cd /home/ubuntu/backend
     npm install
     pm2 stop backend
     pm2 delete backend
     pm2 start npm -- start
-  args:
-    executable: /bin/bash  # Specify the shell to execute the command
-  become_user: ubuntu  # Run the shell commands as the ubuntu user
+  # args:
+  #   executable: /bin/bash  # Specify the shell to execute the command
+  # become_user: ubuntu  # Run the shell commands as the ubuntu user
 
       
