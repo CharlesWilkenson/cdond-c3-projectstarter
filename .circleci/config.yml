@@ -382,6 +382,7 @@ jobs:
             echo  .env
             cat backend/.env
             tar -C backend -czvf artifact.tar.gz .
+            ls artifact.tar.gz
             cd .circleci/ansible
             echo "Contents of the inventory.txt file is ----"
             export ANSIBLE_HOST_KEY_CHECKING=False
