@@ -347,7 +347,7 @@ jobs:
           keys: [backend-build]
       - run:
           name: Install dependencies
-          working_directory: /tmp
+          working_directory: ./.circleci/ansible
           command: |
             apk add --update --no-cache ansible curl rsync openssh nodejs npm tree
             ansible --version
@@ -365,9 +365,9 @@ jobs:
       - run:
           name: Deploy backend 
           command: |
-            cd backend
-            npm install
-            npm run build
+            # cd backend
+            # npm install
+            # npm run build
             cd ..
 
             echo ENVIROMENT=production > "backend/.env"
@@ -383,6 +383,7 @@ jobs:
             cat backend/.env
             tar -C backend -czvf artifact.tar.gz .
             ls artifact.tar.gz
+            pwd
             cd .circleci/ansible
             echo "Contents of the inventory.txt file is ----"
             export ANSIBLE_HOST_KEY_CHECKING=False
