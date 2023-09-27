@@ -70,7 +70,6 @@
 - name: Run the web server
   become: true
   shell: |
-    sudo su - ubuntu
     cd ~/backend
     npm install --force
     pm2 stop default
