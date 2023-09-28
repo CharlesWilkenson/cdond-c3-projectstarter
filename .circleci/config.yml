@@ -291,7 +291,7 @@ jobs:
       - checkout
       - install_awscli
       - run:
-          name: Install dependencies
+          name: Install dependencies.
           command: |
               cd frontend
               npm install
