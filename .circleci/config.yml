@@ -270,16 +270,6 @@ jobs:
             cd backend
             npm install
             npm audit fix --force
-            apk add --no-cache \
-              curl \
-              python3 \
-              py3-pip \
-              && pip3 install --upgrade pip \
-              && pip3 install \
-              awscli \
-              && rm -rf /var/cache/apk/*
-            pip install awscli
-            aws --version
             ## Run and save the migration output
             echo "Running migrations"
             npm run migrations > migrations_dump.txt  
@@ -290,10 +280,10 @@ jobs:
             then
               curl --insecure https://kvdb.io/Au3VBP5b1t2vLE45rS41vT/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi            
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
 
   deploy-frontend:
     docker:
