@@ -323,7 +323,7 @@ jobs:
       #     paths:
       #       - project/frontend/.env            
       - run:
-          name: Deploy frontend objects.
+          name: Deploy frontend objects
           command: |
             cd frontend
             npm install
