@@ -50,33 +50,7 @@ commands:
             unzip awscliv2.zip
             sudo ./aws/install    
             aws --version     
-
-  install_nodejs:
-       description: Install Nodejs
-       steps:
-         - run:
-             name: Install Nodejs
-             command: |            
-              sudo apt install -y tar gzip curl
-              curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-              sudo apt-get install -y nodejs    
-              sudo npm install --global n
-              sudo n 13.8.0   
-              
-               
-
-  install_ansible:
-    description: Install Ansible
-    steps:
-      - run:
-          name: Install Ansible
-          command: |
-            sudo apt update
-            sudo apt install software-properties-common -y
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y              
-
-            
+                      
 jobs:
   build-frontend:
     docker:
@@ -317,11 +291,7 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> .env
             echo "NODE_ENV=production" >> .env
-            cat .env
-      # - persist_to_workspace:
-      #     root: ~/
-      #     paths:
-      #       - project/frontend/.env            
+            cat .env           
       - run:
           name: Deploy frontend objects.
           command: |
